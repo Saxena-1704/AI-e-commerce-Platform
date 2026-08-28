@@ -8,7 +8,6 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 
 from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException
 from backend.app.database import SessionLocal
 from backend.app.models.user import User
 
