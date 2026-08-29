@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopAI — Home</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./index.html">ShopAI</a>
+    <nav class="nav">
+      <a href="./pages/products.html">Products</a>
+      <a href="./pages/login.html" id="loginLink">Login</a>
+      <a href="./pages/register.html" id="registerLink">Register</a>
+      <a href="./pages/cart.html" id="cartLink" class="hidden">Cart</a>
+      <button id="logoutButton" class="nav-button hidden">Logout</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero container">
+      <div>
+        <span class="eyebrow">AI-powered shopping</span>
+        <h1>Shop smarter.<br>Buy with confidence.</h1>
+        <p class="hero-text">
+          Browse products normally today. Later, your shopping agent will be able
+          to search, compare, recommend and purchase for you.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="./pages/products.html">Explore products</a>
+          <button class="button secondary agent-placeholder" type="button">
+            Ask Shopping Agent
+          </button>
+        </div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-icon">✦</div>
+        <div>
+          <p class="agent-label">Shopping Assistant</p>
+          <h2>Your AI shopping companion</h2>
+          <p>
+            Agent functionality will plug into the same commerce capabilities
+            used by this website.
+          </p>
+        </div>
+        <div class="agent-suggestions">
+          <span>Find a phone under ₹80,000</span>
+          <span>Compare laptops</span>
+          <span>Help me choose</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Browse</span>
+          <h2>Shop by category</h2>
+        </div>
+      </div>
+      <div id="categoryGrid" class="category-grid">
+        <p class="muted">Loading categories...</p>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Discover</span>
+          <h2>Featured products</h2>
+        </div>
+        <a href="./pages/products.html" class="text-link">View all →</a>
+      </div>
+      <div id="productGrid" class="product-grid">
+        <p class="muted">Loading products...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">ShopAI · Built for agentic commerce</div>
+  </footer>
+
+  <script type="module" src="./js/home.js"></script>
+</body>
+</html>

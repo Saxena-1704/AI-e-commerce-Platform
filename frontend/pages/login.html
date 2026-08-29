@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopAI — Login</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="auth-page">
+  <header class="site-header">
+    <a class="brand" href="../index.html">ShopAI</a>
+  </header>
+
+  <main class="auth-shell">
+    <section class="auth-card">
+      <span class="eyebrow">Welcome back</span>
+      <h1>Log in</h1>
+      <p class="muted">Continue shopping with your account.</p>
+
+      <div id="formMessage" class="form-message hidden"></div>
+
+      <form id="loginForm">
+        <label>Email
+          <input type="email" name="email" autocomplete="email" required>
+        </label>
+
+        <label>Password
+          <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+
+        <button class="button primary full-width" type="submit">Log in</button>
+      </form>
+
+      <p class="auth-footer">
+        Don't have an account?
+        <a href="./register.html">Create one</a>
+      </p>
+    </section>
+  </main>
+
+  <script type="module" src="../js/auth.js"></script>
+</body>
+</html>

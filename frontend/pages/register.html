@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopAI — Register</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="auth-page">
+  <header class="site-header">
+    <a class="brand" href="../index.html">ShopAI</a>
+  </header>
+
+  <main class="auth-shell">
+    <section class="auth-card">
+      <span class="eyebrow">Get started</span>
+      <h1>Create account</h1>
+      <p class="muted">Create a customer account to start shopping.</p>
+
+      <div id="formMessage" class="form-message hidden"></div>
+
+      <form id="registerForm">
+        <label>Full Name
+          <input type="text" name="full_name" autocomplete="name" required>
+        </label>
+
+        <label>
+          Phone number
+          <input
+            type="tel"
+            name="phone_number"
+            autocomplete="tel"
+          >
+        </label>
+
+        <label>Email
+          <input type="email" name="email" autocomplete="email" required>
+        </label>
+
+        <label>Password
+          <input type="password" name="password" autocomplete="new-password" minlength="8" required>
+        </label>
+
+        <button class="button primary full-width" type="submit">Create account</button>
+      </form>
+
+      <p class="auth-footer">
+        Already have an account?
+        <a href="./login.html">Log in</a>
+      </p>
+    </section>
+  </main>
+
+  <script type="module" src="../js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopAI — Products</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">ShopAI</a>
+    <nav class="nav">
+      <a href="./products.html">Products</a>
+      <a href="./login.html">Login</a>
+      <a href="./register.html">Register</a>
+    </nav>
+  </header>
+
+  <main class="container section">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">Store</span>
+        <h1>Products</h1>
+      </div>
+      <div class="search-box">
+        <input id="searchInput" type="search" placeholder="Search products...">
+      </div>
+    </div>
+
+    <div id="productGrid" class="product-grid">
+      <p class="muted">Loading products...</p>
+    </div>
+  </main>
+
+  <script type="module" src="../js/products.js"></script>
+</body>
+</html>
