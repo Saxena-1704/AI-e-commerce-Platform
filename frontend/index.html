@@ -7,14 +7,11 @@
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-  <header class="site-header">
+  <header class="navbar">
     <a class="brand" href="./index.html">ShopAI</a>
     <nav class="nav">
       <a href="./pages/products.html">Products</a>
-      <a href="./pages/login.html" id="loginLink">Login</a>
-      <a href="./pages/register.html" id="registerLink">Register</a>
-      <a href="./pages/cart.html" id="cartLink" class="hidden">Cart</a>
-      <button id="logoutButton" class="nav-button hidden">Logout</button>
+      <span id="navAuth" data-prefix="pages/"></span>
     </nav>
   </header>
 
@@ -28,8 +25,8 @@
           to search, compare, recommend and purchase for you.
         </p>
         <div class="hero-actions">
-          <a class="button primary" href="./pages/products.html">Explore products</a>
-          <button class="button secondary agent-placeholder" type="button">
+          <a class="button button-primary" href="./pages/products.html">Explore products</a>
+          <button class="button button-secondary agent-placeholder" type="button">
             Ask Shopping Agent
           </button>
         </div>
@@ -76,6 +73,7 @@
       <div id="productGrid" class="product-grid">
         <p class="muted">Loading products...</p>
       </div>
+      <p id="homeMessage" class="muted"></p>
     </section>
   </main>
 

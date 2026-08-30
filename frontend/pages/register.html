@@ -7,8 +7,12 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="auth-page">
-  <header class="site-header">
+  <header class="navbar">
     <a class="brand" href="../index.html">ShopAI</a>
+    <nav class="nav">
+      <a href="./products.html">Products</a>
+      <span id="navAuth" data-prefix=""></span>
+    </nav>
   </header>
 
   <main class="auth-shell">
@@ -20,28 +24,27 @@
       <div id="formMessage" class="form-message hidden"></div>
 
       <form id="registerForm">
-        <label>Full Name
-          <input type="text" name="full_name" autocomplete="name" required>
-        </label>
+        <div class="form-group">
+          <label for="registerName">Full Name</label>
+          <input id="registerName" type="text" name="full_name" autocomplete="name" required>
+        </div>
 
-        <label>
-          Phone number
-          <input
-            type="tel"
-            name="phone_number"
-            autocomplete="tel"
-          >
-        </label>
+        <div class="form-group">
+          <label for="registerPhone">Phone number</label>
+          <input id="registerPhone" type="tel" name="phone_number" autocomplete="tel">
+        </div>
 
-        <label>Email
-          <input type="email" name="email" autocomplete="email" required>
-        </label>
+        <div class="form-group">
+          <label for="registerEmail">Email</label>
+          <input id="registerEmail" type="email" name="email" autocomplete="email" required>
+        </div>
 
-        <label>Password
-          <input type="password" name="password" autocomplete="new-password" minlength="8" required>
-        </label>
+        <div class="form-group">
+          <label for="registerPassword">Password</label>
+          <input id="registerPassword" type="password" name="password" autocomplete="new-password" minlength="8" required>
+        </div>
 
-        <button class="button primary full-width" type="submit">Create account</button>
+        <button class="button button-primary full-width" type="submit">Create account</button>
       </form>
 
       <p class="auth-footer">

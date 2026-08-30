@@ -1,20 +1,40 @@
 # ShopAI Frontend
 
-Plain HTML + CSS + JavaScript frontend for the AI E-Commerce Platform.
+Plain HTML + CSS + JavaScript (ES modules) frontend for the AI E-Commerce Platform.
 
 ## Architecture
 
 The UI is intentionally decoupled from the backend:
 
+```
 HTML pages
-  -> page JS
-  -> js/api.js
-  -> FastAPI
+  -> page JS (js/home.js, js/products.js, js/cart.js, ...)
+  -> js/api.js            <- the ONLY place that talks to the backend
+  -> FastAPI (localhost:8000)
   -> PostgreSQL / Razorpay
+```
 
-`js/api.js` is the frontend's API boundary. Keep backend route knowledge there rather than scattering `fetch()` calls across pages.
+`js/api.js` is the frontend's API boundary. Backend route knowledge and the
+base URL (`js/config.js`) live there; page code never contains `fetch()` calls
+or backend URLs. Later a customer AI agent can use the same commerce
+capabilities instead of manipulating DOM elements.
 
-Later, a customer AI agent can use the same commerce capabilities instead of manipulating DOM elements.
+## Pages
+
+| Page             | Route                            | Module                 |
+| ---------------- | -------------------------------- | ---------------------- |
+| Home             | `index.html`                     | `js/home.js`           |
+| Login            | `pages/login.html`               | `js/auth.js`           |
+| Register         | `pages/register.html`            | `js/auth.js`           |
+| Products         | `pages/products.html`            | `js/products.js`       |
+| Product detail   | `pages/product.html?id=<id>`     | `js/product.js`        |
+| Cart + checkout  | `pages/cart.html`                | `js/cart.js` + `js/checkout.js` |
+| Order history    | `pages/orders.html`              | `js/orders.js`         |
+| Order detail     | `pages/order.html?id=<order_id>` | `js/orders.js`         |
+
+Checkout runs from the cart page: it calls order checkout, creates a Razorpay
+payment, opens Razorpay's checkout modal, and verifies the payment signature
+(verified server-side), then redirects to the order detail page.
 
 ## Run
 
@@ -26,9 +46,31 @@ python -m http.server 5500 --directory frontend
 
 Then open:
 
-`http://localhost:5500/`
+```
+http://localhost:5500/
+```
 
-Do not open the HTML files directly with `file://`; ES modules and API requests work more reliably through a local HTTP server.
+Do not open the HTML files directly with `file://`; ES modules and API requests
+work more reliably through a local HTTP server.
+
+## Backend
+
+Start FastAPI (from the repository root):
+
+```bash
+uvicorn backend.app.main:app --reload --port 8000
+```
+
+`backend/app/main.py` enables CORS for common local frontend origins
+(`localhost:5500`, `5173`, `3000`). Tighten `allow_origins` before deployment.
+
+## Shared helpers
+
+- `js/auth.js` — `isAuthenticated()`, `requireAuth()`, `logout()`, `initNavbar()`
+  (the auth-aware navbar is injected into `<span id="navAuth">` on every page),
+  plus login/register form handling.
+- `js/utils.js` — `escapeHtml()`, `formatMoney()` (handles Decimal-as-string
+  values), `normalizeList()`.
 
 ## Backend URL
 
@@ -37,27 +79,12 @@ Change only:
 `js/config.js`
 
 when FastAPI moves from `http://localhost:8000` to a deployed URL.
+Razorpay credentials come from the backend `.env` (never the frontend).
 
-## Important
+## Future agent structure
 
-The exact request/response schemas of the existing FastAPI endpoints should be checked against Swagger at:
+- `js/agent/customer-agent.js` (planned) — customer agent.
+- `js/agent/merchant-agent.js` (planned) — merchant agent.
 
-`http://localhost:8000/docs`
-
-If your register schema uses a field other than `name`, change the payload in `js/auth.js`. If product/category response shapes differ, adjust the normalization in the page JS or, preferably, add normalization inside `js/api.js`.
-
-## Future structure
-
-Recommended next additions:
-
-- `pages/product.html`
-- `pages/checkout.html`
-- `pages/orders.html`
-- `js/cart.js`
-- `js/checkout.js`
-- `js/orders.js`
-- `js/agent/customer-agent.js`
-- `merchant/`
-- `js/agent/merchant-agent.js`
-
-The agent folders should call capability functions/API modules, not manipulate page DOM directly.
+Agents should call application/API capability functions (the same `js/api.js`
+boundary the UI uses) rather than manipulating page DOM or the database.

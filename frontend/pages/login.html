@@ -7,8 +7,12 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="auth-page">
-  <header class="site-header">
+  <header class="navbar">
     <a class="brand" href="../index.html">ShopAI</a>
+    <nav class="nav">
+      <a href="./products.html">Products</a>
+      <span id="navAuth" data-prefix=""></span>
+    </nav>
   </header>
 
   <main class="auth-shell">
@@ -20,15 +24,17 @@
       <div id="formMessage" class="form-message hidden"></div>
 
       <form id="loginForm">
-        <label>Email
-          <input type="email" name="email" autocomplete="email" required>
-        </label>
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" type="email" name="email" autocomplete="email" required>
+        </div>
 
-        <label>Password
-          <input type="password" name="password" autocomplete="current-password" required>
-        </label>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" name="password" autocomplete="current-password" required>
+        </div>
 
-        <button class="button primary full-width" type="submit">Log in</button>
+        <button class="button button-primary full-width" type="submit">Log in</button>
       </form>
 
       <p class="auth-footer">

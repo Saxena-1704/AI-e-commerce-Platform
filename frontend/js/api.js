@@ -1,5 +1,13 @@
 import { API_BASE_URL } from "./config.js";
 
+// Shared request helper. All backend communication goes through this module.
+//
+// Handles:
+//  - base URL concatenation (page code never contains backend URLs)
+//  - JSON content-type when a body is present
+//  - automatic JWT attachment from localStorage
+//  - HTTP error normalization (FastAPI `detail`, including 422 arrays)
+//  - 204 No Content
 async function apiRequest(path, options = {}) {
   const token = localStorage.getItem("access_token");
 
@@ -12,19 +20,42 @@ async function apiRequest(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  let response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch (error) {
+    throw new Error(
+      "Network error: could not reach the server. Check that the backend is running."
+    );
+  }
+
+  if (response.status === 401 && options.auth !== false) {
+    // Token missing/expired/invalid. Drop it so protected redirects work.
+    localStorage.removeItem("access_token");
+  }
 
   if (!response.ok) {
     let message = "Something went wrong";
 
     try {
       const data = await response.json();
-      message = data.detail || message;
+
+      if (Array.isArray(data.detail)) {
+        // FastAPI 422 validation: detail is a list of {loc, msg, type}
+        message = data.detail
+          .map((item) => item.msg || "Invalid value")
+          .join("; ");
+      } else if (data.detail) {
+        message = data.detail;
+      } else if (data.message) {
+        message = data.message;
+      }
     } catch {
-      // Ignore JSON parsing errors
+      // Non-JSON error body; keep the generic message.
     }
 
     throw new Error(message);
@@ -50,6 +81,7 @@ export const api = {
       apiRequest("/auth/login", {
         method: "POST",
         body: JSON.stringify(payload),
+        auth: false,
       }),
 
     testProtected: () =>

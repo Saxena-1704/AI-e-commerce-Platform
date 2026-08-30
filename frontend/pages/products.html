@@ -7,12 +7,11 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <header class="site-header">
+  <header class="navbar">
     <a class="brand" href="../index.html">ShopAI</a>
     <nav class="nav">
       <a href="./products.html">Products</a>
-      <a href="./login.html">Login</a>
-      <a href="./register.html">Register</a>
+      <span id="navAuth" data-prefix=""></span>
     </nav>
   </header>
 
@@ -22,15 +21,31 @@
         <span class="eyebrow">Store</span>
         <h1>Products</h1>
       </div>
-      <div class="search-box">
-        <input id="searchInput" type="search" placeholder="Search products...">
+
+      <div class="page-tools">
+        <label class="filter-label">
+          Category
+          <select id="categoryFilter">
+            <option value="">All categories</option>
+          </select>
+        </label>
+
+        <div class="search-box">
+          <input id="searchInput" type="search" placeholder="Search products...">
+        </div>
       </div>
     </div>
 
     <div id="productGrid" class="product-grid">
       <p class="muted">Loading products...</p>
     </div>
+
+    <p id="productMessage" class="muted"></p>
   </main>
+
+  <footer class="footer">
+    <div class="container">ShopAI · Built for agentic commerce</div>
+  </footer>
 
   <script type="module" src="../js/products.js"></script>
 </body>
