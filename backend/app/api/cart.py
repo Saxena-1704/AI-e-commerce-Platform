@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from decimal import Decimal
+from datetime import datetime
 
 from backend.app.auth.security import get_db
 from backend.app.models.cart import Cart
 from backend.app.models.cart_item import CartItem
 from backend.app.models.product import Product
+from backend.app.models.order import Order
 from backend.app.schemas.cart import (
     CartItemAdd,
     CartItemUpdate,
@@ -38,6 +40,21 @@ def get_or_create_cart(
         db.refresh(cart)
 
     return cart
+
+
+def ensure_cart_editable(cart: Cart, db: Session):
+    if cart.status != "checkout_pending":
+        return
+    pending = db.query(Order).filter(
+        Order.user_id == cart.user_id,
+        Order.status == "pending_payment"
+    ).order_by(Order.id.desc()).first()
+    if pending and pending.expires_at and pending.expires_at < datetime.utcnow():
+        pending.status = "cancelled"
+        cart.status = "active"
+        db.commit()
+        return
+    raise HTTPException(status_code=409, detail="Cart is locked while payment is pending")
 
 
 def build_cart_response(
@@ -105,6 +122,7 @@ def add_to_cart(
         current_user.id,
         db
     )
+    ensure_cart_editable(cart, db)
 
     # Check that product exists
     product = (
@@ -185,6 +203,7 @@ def update_cart_item(
         current_user.id,
         db
     )
+    ensure_cart_editable(cart, db)
 
     cart_item = (
         db.query(CartItem)
@@ -242,6 +261,7 @@ def remove_from_cart(
         current_user.id,
         db
     )
+    ensure_cart_editable(cart, db)
 
     cart_item = (
         db.query(CartItem)

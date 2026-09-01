@@ -1,4 +1,5 @@
 // Shared, framework-free helpers used by page modules.
+import { API_BASE_URL } from "./config.js";
 
 export function escapeHtml(value) {
   return String(value ?? "")
@@ -25,4 +26,16 @@ export function normalizeList(data) {
   const candidate =
     data?.items || data?.products || data?.categories || data?.results;
   return Array.isArray(candidate) ? candidate : [];
+}
+
+// Product image paths are stored relative to the API (for example,
+// /uploads/products/product_1.jpg). Resolve them against the backend origin
+// because the storefront is served from a different development port.
+export function resolveImageUrl(imagePath) {
+  if (!imagePath) return "";
+  try {
+    return new URL(imagePath, `${API_BASE_URL}/`).href;
+  } catch {
+    return "";
+  }
 }

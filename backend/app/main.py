@@ -10,9 +10,18 @@ from backend.app.api.cart import router as cart_router
 from backend.app.api.orders import router as order_router
 from backend.app.api.payments import router as payment_router
 
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+UPLOADS_DIR = BASE_DIR / "uploads"
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
 
 
 app = FastAPI()
+
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 # Allow the plain-JS frontend (served on a different port during development)
 # to call this API. Restrict this list before production deployment.

@@ -7,3 +7,4 @@ from backend.app.models.cart_item import CartItem
 from backend.app.models.order import Order
 from backend.app.models.order_item import OrderItem
 from backend.app.models.payment import Payment
+from backend.app.models.payment_webhook_event import PaymentWebhookEvent

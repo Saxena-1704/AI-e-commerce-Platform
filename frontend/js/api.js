@@ -154,5 +154,10 @@ export const api = {
         method: "POST",
         body: JSON.stringify(payload),
       }),
+
+    fail: (orderId) =>
+      apiRequest(`/payments/fail/${orderId}`, {
+        method: "POST",
+      }),
   },
 };

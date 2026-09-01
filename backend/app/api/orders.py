@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from backend.app.auth.security import get_db
 from backend.app.models.cart import Cart
@@ -33,7 +33,7 @@ def checkout(
         db.query(Cart)
         .filter(
             Cart.user_id == current_user.id,
-            Cart.status == "active"
+            Cart.status.in_(["active", "checkout_pending"])
         )
         .first()
     )
@@ -43,6 +43,16 @@ def checkout(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Cart not found"
         )
+
+    if cart.status == "checkout_pending":
+        pending = db.query(Order).filter(Order.user_id == current_user.id, Order.status == "pending_payment").order_by(Order.id.desc()).first()
+        if pending and pending.expires_at and pending.expires_at < datetime.utcnow():
+            pending.status = "cancelled"
+            cart.status = "active"
+            db.commit()
+        elif pending:
+            pending.items = db.query(OrderItem).filter(OrderItem.order_id == pending.id).all()
+            return pending
 
     # 2. Get cart items
     cart_items = (
@@ -125,7 +135,8 @@ def checkout(
         shipping_amount=shipping_amount,
         tax_amount=tax_amount,
         total_amount=total_amount,
-        status="placed"
+        status="pending_payment",
+        expires_at=datetime.utcnow() + timedelta(minutes=30)
     )
 
     db.add(order)
@@ -145,18 +156,10 @@ def checkout(
 
         db.add(order_item)
 
-    # 8. Reduce product stock
-    for item in validated_items:
+    # Keep the cart intact and lock it until payment is finalized.
+    cart.status = "checkout_pending"
 
-        product = item["product"]
-
-        product.stock_quantity -= item["quantity"]
-
-    # 9. Clear cart
-    for item in cart_items:
-        db.delete(item)
-
-    # 10. Commit everything
+    # 8. Commit the pending order and locked cart.
     db.commit()
     db.refresh(order)
 

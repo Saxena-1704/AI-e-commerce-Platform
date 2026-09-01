@@ -63,6 +63,7 @@ export async function runCheckout() {
           });
           resolve();
         } catch (error) {
+          await api.payments.fail(order.id).catch(() => {});
           reject(new Error(`Payment verification failed: ${error.message}`));
         }
       },
@@ -70,9 +71,15 @@ export async function runCheckout() {
     });
 
     razorpay.on("payment.failed", (response) => {
+      api.payments.fail(order.id).catch(() => {});
       const description =
         response?.error?.description || "Payment was not completed. Please try again.";
       reject(new Error(description));
+    });
+
+    razorpay.on("modal.ondismiss", () => {
+      api.payments.fail(order.id).catch(() => {});
+      reject(new Error("Payment was cancelled."));
     });
 
     razorpay.open();

@@ -59,6 +59,7 @@ def create_product(
         url_slug=product.url_slug,
         category_id=product.category_id,
         description=product.description,
+        image_url=product.image_url,
         price=product.price,
         stock_quantity=product.stock_quantity
     )

@@ -69,3 +69,5 @@ class Payment(Base):
         DateTime,
         nullable=True
     )
+
+    attempt_number = Column(Integer, nullable=False, default=1)

@@ -10,11 +10,12 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from backend.app.database import SessionLocal
 from backend.app.models.user import User
+from backend.app.config import JWT_SECRET_KEY
 
 security = HTTPBearer()
 
 
-SECRET_KEY = "CHANGE_THIS_TO_A_RANDOM_SECRET"
+SECRET_KEY = JWT_SECRET_KEY
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
@@ -117,4 +118,4 @@ def get_current_admin(
             detail="Admin access required"
         )
 
-    return current_user    
+    return current_user

@@ -28,6 +28,7 @@ class OrderResponse(BaseModel):
     total_amount: Decimal
 
     status: str
+    expires_at: Optional[datetime]
 
     items: list[OrderItemResponse]
 

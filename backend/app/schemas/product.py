@@ -13,6 +13,11 @@ class ProductCreate(BaseModel):
 
     description: Optional[str] = None
 
+    image_url: Optional[str] = Field(
+        None,
+        max_length=500
+    )
+
     price: Decimal = Field(..., ge=0)
 
     stock_quantity: int = Field(..., ge=0)
@@ -38,6 +43,11 @@ class ProductUpdate(BaseModel):
 
     description: Optional[str] = None
 
+    image_url: Optional[str] = Field(
+        None,
+        max_length=500
+    )
+
     price: Optional[Decimal] = Field(
         None,
         ge=0
@@ -60,6 +70,7 @@ class ProductResponse(BaseModel):
     url_slug: str
     category_id: int
     description: Optional[str]
+    image_url: Optional[str]
     price: Decimal
     stock_quantity: int
     status: str

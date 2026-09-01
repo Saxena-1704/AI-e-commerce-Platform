@@ -1,6 +1,6 @@
 import { api } from "./api.js";
 import { requireAuth } from "./auth.js";
-import { escapeHtml, formatMoney } from "./utils.js";
+import { escapeHtml, formatMoney, resolveImageUrl } from "./utils.js";
 
 const container = document.querySelector("#productDetail");
 
@@ -17,10 +17,11 @@ function renderProduct(product) {
   const stockMarkup = inStock
     ? `<span class="badge badge-success">In stock · ${quantity} available</span>`
     : `<span class="badge badge-danger">Out of stock</span>`;
+  const imageUrl = resolveImageUrl(product.image_url);
 
   container.innerHTML = `
     <div class="product-detail-card">
-      <div class="product-detail-image">Product image</div>
+      <div class="product-detail-image">${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(product.product_name)}">` : "Product image"}</div>
 
       <div class="product-detail-info">
         <span class="eyebrow">Product</span>

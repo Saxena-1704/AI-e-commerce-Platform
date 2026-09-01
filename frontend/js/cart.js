@@ -1,7 +1,7 @@
 import { api } from "./api.js";
 import { requireAuth } from "./auth.js";
 import { runCheckout } from "./checkout.js";
-import { escapeHtml, formatMoney } from "./utils.js";
+import { escapeHtml, formatMoney, resolveImageUrl } from "./utils.js";
 
 const container = document.querySelector("#cartContainer");
 
@@ -45,11 +45,12 @@ function renderLines(items) {
     .map((item) => {
       const product = item.product;
       const stock = Number(product.stock_quantity) || 1;
+      const imageUrl = resolveImageUrl(product.image_url);
 
       return `
         <div class="cart-row" data-item-id="${item.id}">
           <div class="cart-product">
-            <div class="cart-thumb">Product</div>
+            <div class="cart-thumb">${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(product.product_name)}">` : "Product"}</div>
             <div>
               <a class="cart-name" href="./product.html?id=${product.id}">
                 ${escapeHtml(product.product_name)}

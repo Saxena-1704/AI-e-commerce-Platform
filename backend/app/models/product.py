@@ -32,6 +32,11 @@ class Product(Base):
         nullable=True
     )
 
+    image_url = Column(
+        String(500),
+        nullable=True
+    )
+
     price = Column(
         Numeric(10, 2),
         nullable=False

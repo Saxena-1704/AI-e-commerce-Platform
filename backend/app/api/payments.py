@@ -1,159 +1,113 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import json
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from backend.app.auth.security import get_db
+from backend.app.auth.security import get_current_user, get_db
+from backend.app.config import RAZORPAY_WEBHOOK_SECRET
 from backend.app.models.order import Order
 from backend.app.models.payment import Payment
-from backend.app.auth.security import get_current_user
+from backend.app.models.payment_webhook_event import PaymentWebhookEvent
 from backend.app.payment_gateway import razorpay_client
 from backend.app.schemas.payment import PaymentVerifyRequest
+from backend.app.services.payment_service import fail_payment, finalize_payment
+
+router = APIRouter(prefix="/payments", tags=["Payments"])
 
 
-router = APIRouter(
-    prefix="/payments",
-    tags=["Payments"]
-)
+def payment_response(payment: Payment):
+    return {"payment_id": payment.id, "order_id": payment.order_id,
+            "razorpay_order_id": payment.provider_order_id, "amount": payment.amount,
+            "currency": payment.currency, "razorpay_key_id": razorpay_client.auth[0]}
 
 
-@router.post(
-    "/create/{order_id}",
-    status_code=status.HTTP_201_CREATED
-)
-def create_payment(
-    order_id: int,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    # 1. Find the customer's order
-    order = (
-        db.query(Order)
-        .filter(
-            Order.id == order_id,
-            Order.user_id == current_user.id
-        )
-        .first()
-    )
-
+@router.post("/create/{order_id}", status_code=status.HTTP_201_CREATED)
+def create_payment(order_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    order = db.query(Order).filter(Order.id == order_id, Order.user_id == current_user.id).first()
     if not order:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Order not found"
-        )
-
-    # 2. Check whether payment already exists
-    existing_payment = (
-        db.query(Payment)
-        .filter(Payment.order_id == order.id)
-        .first()
-    )
-
-    if existing_payment:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Payment already created for this order"
-        )
-
-    # 3. Convert rupees → paise
-    amount_in_paise = int(order.total_amount * 100)
-
-    # 4. Create Razorpay order
-    razorpay_order = razorpay_client.order.create({
-        "amount": amount_in_paise,
-        "currency": "INR",
-        "receipt": order.order_number
-    })
-
-    # 5. Save payment in our database
-    payment = Payment(
-        order_id=order.id,
-        provider="razorpay",
-        provider_order_id=razorpay_order["id"],
-        amount=order.total_amount,
-        currency="INR",
-        status="created"
-    )
-
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.expires_at and order.expires_at < datetime.utcnow():
+        order.status = "cancelled"
+        db.commit()
+        raise HTTPException(status_code=409, detail="Order payment window has expired")
+    if order.status not in ("pending_payment", "payment_failed"):
+        raise HTTPException(status_code=409, detail="Order is not awaiting payment")
+    if order.status == "payment_failed":
+        order.status = "pending_payment"
+        db.commit()
+    existing = db.query(Payment).filter(Payment.order_id == order.id, Payment.status == "created").first()
+    if existing:
+        return payment_response(existing)
+    attempt = (db.query(Payment).filter(Payment.order_id == order.id).count() or 0) + 1
+    razorpay_order = razorpay_client.order.create({"amount": int(order.total_amount * 100), "currency": "INR", "receipt": order.order_number})
+    payment = Payment(order_id=order.id, attempt_number=attempt, provider="razorpay",
+                      provider_order_id=razorpay_order["id"], amount=order.total_amount,
+                      currency="INR", status="created")
     db.add(payment)
     db.commit()
     db.refresh(payment)
-
-    # 6. Return information needed by frontend
-    return {
-        "payment_id": payment.id,
-        "order_id": order.id,
-        "razorpay_order_id": razorpay_order["id"],
-        "amount": order.total_amount,
-        "currency": "INR",
-        "razorpay_key_id": razorpay_client.auth[0]
-    }
+    return payment_response(payment)
 
 
 @router.post("/verify")
-def verify_payment(
-    payment_data: PaymentVerifyRequest,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    # 1. Find our payment using Razorpay Order ID
-    payment = (
-        db.query(Payment)
-        .filter(
-            Payment.provider_order_id == payment_data.razorpay_order_id
-        )
-        .first()
-    )
-
+def verify_payment(payment_data: PaymentVerifyRequest, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    payment = db.query(Payment).filter(Payment.provider_order_id == payment_data.razorpay_order_id).first()
     if not payment:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Payment not found"
-        )
-
-    # 2. Find the associated order
-    order = (
-        db.query(Order)
-        .filter(
-            Order.id == payment.order_id,
-            Order.user_id == current_user.id
-        )
-        .first()
-    )
-
+        raise HTTPException(status_code=404, detail="Payment not found")
+    order = db.query(Order).filter(Order.id == payment.order_id, Order.user_id == current_user.id).first()
     if not order:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Order not found"
-        )
-
-    # 3. Verify Razorpay signature
+        raise HTTPException(status_code=404, detail="Order not found")
+    if payment.status == "paid":
+        return {"message": "Payment already verified", "payment_id": payment.id, "order_id": order.id, "status": "paid"}
     try:
-        razorpay_client.utility.verify_payment_signature({
-            "razorpay_order_id": payment_data.razorpay_order_id,
-            "razorpay_payment_id": payment_data.razorpay_payment_id,
-            "razorpay_signature": payment_data.razorpay_signature
-        })
+        razorpay_client.utility.verify_payment_signature({"razorpay_order_id": payment_data.razorpay_order_id,
+            "razorpay_payment_id": payment_data.razorpay_payment_id, "razorpay_signature": payment_data.razorpay_signature})
+    except Exception as exc:
+        fail_payment(db, payment)
+        raise HTTPException(status_code=400, detail="Payment verification failed") from exc
+    finalize_payment(db, payment, payment_data.razorpay_payment_id)
+    return {"message": "Payment verified successfully", "payment_id": payment.id, "order_id": order.id, "status": "paid"}
 
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Payment verification failed"
-        )
 
-    # 4. Update our payment
-    payment.provider_payment_id = payment_data.razorpay_payment_id
-    payment.status = "paid"
+@router.post("/fail/{order_id}")
+def mark_payment_failed(order_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    payment = db.query(Payment).join(Order).filter(Payment.order_id == order_id, Order.user_id == current_user.id, Payment.status == "created").first()
+    if payment:
+        fail_payment(db, payment)
+    else:
+        order = db.query(Order).filter(Order.id == order_id, Order.user_id == current_user.id).first()
+        if order and order.status == "pending_payment":
+            order.status = "payment_failed"
+            db.commit()
+    return {"status": "payment_failed", "order_id": order_id}
 
-    # 5. Update our order
-    order.status = "paid"
 
-    db.commit()
-    db.refresh(payment)
-
-    return {
-        "message": "Payment verified successfully",
-        "payment_id": payment.id,
-        "order_id": order.id,
-        "status": payment.status
-    }
+@router.post("/webhook", status_code=status.HTTP_200_OK)
+async def payment_webhook(request: Request, db: Session = Depends(get_db)):
+    body = await request.body()
+    signature = request.headers.get("X-Razorpay-Signature")
+    event_id = request.headers.get("x-razorpay-event-id") or request.headers.get("X-Razorpay-Event-Id")
+    if not RAZORPAY_WEBHOOK_SECRET or not signature or not event_id:
+        raise HTTPException(status_code=400, detail="Invalid webhook headers")
+    try:
+        razorpay_client.utility.verify_webhook_signature(body.decode("utf-8"), signature, RAZORPAY_WEBHOOK_SECRET)
+        payload = json.loads(body)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="Invalid webhook signature or payload") from exc
+    if db.query(PaymentWebhookEvent).filter(PaymentWebhookEvent.event_id == event_id).first():
+        return {"status": "already_processed"}
+    event_type = payload.get("event", "")
+    event_payload = payload.get("payload", {})
+    entity = (event_payload.get("payment", {}).get("entity", {}) or
+              event_payload.get("order", {}).get("entity", {}))
+    provider_order_id = entity.get("order_id")
+    payment = db.query(Payment).filter(Payment.provider_order_id == provider_order_id).first() if provider_order_id else None
+    db.add(PaymentWebhookEvent(event_id=event_id, event_type=event_type))
+    if payment and event_type in ("payment.captured", "order.paid"):
+        finalize_payment(db, payment, entity.get("id"))
+    elif payment and event_type == "payment.failed":
+        fail_payment(db, payment)
+    else:
+        db.commit()
+    return {"status": "processed"}

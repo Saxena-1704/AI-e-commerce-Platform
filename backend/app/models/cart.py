@@ -19,7 +19,8 @@ class Cart(Base):
     status = Column(
         String(20),
         nullable=False,
-        default="active"
+        default="active",
+        index=True
     )
 
     created_at = Column(

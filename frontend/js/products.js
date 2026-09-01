@@ -1,6 +1,6 @@
 import { api } from "./api.js";
 import { requireAuth } from "./auth.js";
-import { escapeHtml, formatMoney } from "./utils.js";
+import { escapeHtml, formatMoney, resolveImageUrl } from "./utils.js";
 
 const grid = document.querySelector("#productGrid");
 const searchInput = document.querySelector("#searchInput");
@@ -24,10 +24,11 @@ function productCard(product) {
   const inStock = isInStock(product);
   const stockClass = inStock ? "badge-success" : "badge-danger";
   const stockText = inStock ? "In stock" : "Out of stock";
+  const imageUrl = resolveImageUrl(product.image_url);
 
   return `
     <article class="product-card">
-      <div class="product-image">Product image</div>
+      <div class="product-image">${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(product.product_name)}">` : "Product image"}</div>
       <div class="product-info">
         <div class="product-name">${escapeHtml(product.product_name)}</div>
         <div class="product-description">${escapeHtml(product.description || "No description available.")}</div>

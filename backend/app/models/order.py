@@ -57,8 +57,11 @@ class Order(Base):
     status = Column(
         String(30),
         nullable=False,
-        default="placed"
+        default="pending_payment",
+        index=True
     )
+
+    expires_at = Column(DateTime, nullable=True)
 
     created_at = Column(
         DateTime,
