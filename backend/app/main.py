@@ -9,6 +9,8 @@ from backend.app.api.products import router as product_router
 from backend.app.api.cart import router as cart_router
 from backend.app.api.orders import router as order_router
 from backend.app.api.payments import router as payment_router
+from backend.app.api.merchant import router as merchant_router
+from backend.app.api.merchant_agent import router as merchant_agent_router
 
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
@@ -46,6 +48,8 @@ app.include_router(product_router)
 app.include_router(cart_router)
 app.include_router(order_router)
 app.include_router(payment_router)
+app.include_router(merchant_router)
+app.include_router(merchant_agent_router)
 
 
 

@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from backend.app.auth.security import get_current_user, get_db
@@ -103,9 +104,19 @@ async def payment_webhook(request: Request, db: Session = Depends(get_db)):
               event_payload.get("order", {}).get("entity", {}))
     provider_order_id = entity.get("order_id")
     payment = db.query(Payment).filter(Payment.provider_order_id == provider_order_id).first() if provider_order_id else None
+    # Reserve the event ID before applying its side effect.  The unique
+    # constraint makes duplicate delivery safe even when two requests race
+    # past the existence check above.
     db.add(PaymentWebhookEvent(event_id=event_id, event_type=event_type))
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        return {"status": "already_processed"}
     if payment and event_type in ("payment.captured", "order.paid"):
-        finalize_payment(db, payment, entity.get("id"))
+        # `order.paid` contains a Razorpay order entity, not a payment entity.
+        provider_payment_id = entity.get("id") if event_type == "payment.captured" else None
+        finalize_payment(db, payment, provider_payment_id)
     elif payment and event_type == "payment.failed":
         fail_payment(db, payment)
     else:

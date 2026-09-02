@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Merchant Dashboard</title>
+
+    <link rel="stylesheet" href="../../css/merchant.css">
+</head>
+
+<body>
+
+    <div class="dashboard">
+
+        <aside class="sidebar">
+
+            <h2>AI Commerce</h2>
+
+            <nav>
+                <a href="#" class="active">Overview</a>
+                <a href="#">Products</a>
+                <a href="#">Orders</a>
+                <a href="#">Payments</a>
+                <a href="#">Analytics</a>
+                <a href="#">AI Growth Agent</a>
+            </nav>
+
+        </aside>
+
+
+        <main class="main-content">
+
+            <header class="dashboard-header">
+                <div>
+                    <h1>Merchant Dashboard</h1>
+                    <p>Business overview</p>
+                </div>
+
+                <button id="logout-button">
+                    Logout
+                </button>
+            </header>
+
+
+            <section class="stats-grid">
+
+                <div class="stat-card">
+                    <h3>Revenue</h3>
+                    <p id="revenue">₹0</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Orders</h3>
+                    <p id="total-orders">0</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Products</h3>
+                    <p id="total-products">0</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Low Stock</h3>
+                    <p id="low-stock">0</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Successful Payments</h3>
+                    <p id="successful-payments">0</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Failed Payments</h3>
+                    <p id="failed-payments">0</p>
+                </div>
+
+            </section>
+
+
+            <section class="agent-section">
+
+                <h2>AI Growth Agent</h2>
+
+                <div class="agent-placeholder">
+
+                    <p>
+                        Your AI Growth Agent will appear here.
+                    </p>
+
+                    <p>
+                        It will analyze your store and Razorpay
+                        data to identify revenue opportunities.
+                    </p>
+
+                    <button disabled>
+                        Agent Coming Next
+                    </button>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <div class="merchant-agent-widget">
+        <button
+            id="merchant-agent-toggle"
+            class="merchant-agent-toggle"
+            type="button"
+            aria-controls="merchant-agent-chat"
+            aria-expanded="false"
+        >
+            <span aria-hidden="true">✦</span>
+            <span>AI Agent</span>
+        </button>
+
+        <section
+            id="merchant-agent-chat"
+            class="merchant-agent-chat"
+            aria-label="Merchant Growth Agent"
+            hidden
+        >
+            <header class="merchant-agent-header">
+                <div>
+                    <h2>Merchant Growth Agent</h2>
+                    <p>Ask about your store and payments</p>
+                </div>
+                <button id="merchant-agent-close" class="merchant-agent-close" type="button" aria-label="Close chat">×</button>
+            </header>
+
+            <div id="merchant-agent-messages" class="merchant-agent-messages" aria-live="polite">
+                <div class="merchant-agent-message agent-message">
+                    <p>Hi! I can help analyze your orders, payments, refunds, and settlements.</p>
+                </div>
+            </div>
+
+            <form id="merchant-agent-form" class="merchant-agent-form">
+                <textarea
+                    id="merchant-agent-input"
+                    rows="1"
+                    maxlength="4000"
+                    placeholder="Ask a business question..."
+                    aria-label="Message"
+                    required
+                ></textarea>
+                <button id="merchant-agent-send" type="submit">Send</button>
+            </form>
+            <div id="merchant-agent-loading" class="merchant-agent-loading" hidden>Agent is thinking…</div>
+        </section>
+    </div>
+
+
+    <script src="../../js/merchant/dashboard.js"></script>
+
+</body>
+</html>

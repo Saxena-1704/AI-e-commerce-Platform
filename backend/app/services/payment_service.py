@@ -14,13 +14,20 @@ def finalize_payment(db: Session, payment: Payment, provider_payment_id: str | N
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     if payment.status == "paid":
+        # This also commits a freshly-reserved webhook event when a distinct
+        # successful event (for example, order.paid after payment.captured)
+        # arrives after the payment was already finalized.
+        db.commit()
         return order
     if order.status == "paid":
         payment.status = "paid"
         payment.provider_payment_id = provider_payment_id or payment.provider_payment_id
         db.commit()
         return order
-    if order.status != "pending_payment":
+    # A client-side verification failure is not proof that Razorpay did not
+    # capture the payment.  A later captured webhook must still be able to
+    # reconcile that payment and consume stock exactly once.
+    if order.status not in ("pending_payment", "payment_failed"):
         raise HTTPException(status_code=409, detail="Order is not payable")
 
     items = db.query(OrderItem).filter(OrderItem.order_id == order.id).all()

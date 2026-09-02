@@ -9,6 +9,26 @@ export function isAuthenticated() {
   return Boolean(localStorage.getItem("access_token"));
 }
 
+// The login JWT already includes the user's role_id. This is only used to
+// control visibility in the navbar; the backend remains the authority for
+// protecting merchant routes.
+export function isAdmin() {
+  const token = localStorage.getItem("access_token");
+  if (!token) return false;
+
+  try {
+    const payload = token.split(".")[1];
+    const normalized = payload
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+      .padEnd(Math.ceil(payload.length / 4) * 4, "=");
+    const decoded = JSON.parse(atob(normalized));
+    return decoded.role_id === 1 || decoded.role === "admin" || decoded.role_name === "admin";
+  } catch {
+    return false;
+  }
+}
+
 // Redirect authenticated-only pages to the login page (remembering the
 // intended destination so login can bounce the user back).
 export function requireAuth() {
@@ -38,9 +58,14 @@ function buildAuthLinks(prefix) {
   const loggedIn = isAuthenticated();
 
   if (loggedIn) {
+    const merchantLink = isAdmin()
+      ? `<a href="./${prefix}merchant/dashboard.html">Merchant Dashboard</a>`
+      : "";
+
     return `
       <a href="./${prefix}cart.html">Cart</a>
       <a href="./${prefix}orders.html">Orders</a>
+      ${merchantLink}
       <button class="nav-button" type="button" data-logout>Logout</button>
     `;
   }

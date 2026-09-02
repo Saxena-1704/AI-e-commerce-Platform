@@ -8,3 +8,6 @@ python-jose[cryptography]
 pydantic[email]
 pwdlib[argon2]
 razorpay
+langchain
+langchain-mcp-adapters
+langchain-groq

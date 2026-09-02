@@ -1,0 +1,584 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f6f8;
+    color: #222;
+}
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 230px;
+    background: #111827;
+    color: white;
+    padding: 24px 16px;
+}
+
+.sidebar h2 {
+    margin-bottom: 30px;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar a {
+    color: #d1d5db;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: #374151;
+    color: white;
+}
+
+.main-content {
+    flex: 1;
+    padding: 30px;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.dashboard-header p {
+    margin-top: 6px;
+    color: #6b7280;
+}
+
+.dashboard-header button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 24px;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card h3 {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.stat-card p {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.agent-section {
+    margin-top: 35px;
+}
+
+.agent-placeholder {
+    margin-top: 15px;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+.agent-placeholder p {
+    margin-bottom: 10px;
+    color: #6b7280;
+}
+
+.agent-placeholder button {
+    margin-top: 15px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+}
+
+.merchant-agent-widget {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.merchant-agent-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: #111827;
+    color: white;
+    box-shadow: 0 8px 24px rgba(17, 24, 39, .22);
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.merchant-agent-toggle:hover {
+    background: #374151;
+}
+
+.merchant-agent-chat {
+    width: min(380px, calc(100vw - 32px));
+    height: min(540px, calc(100vh - 120px));
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 16px 45px rgba(17, 24, 39, .2);
+}
+
+/* The chat stays collapsed until the AI Agent button is clicked. */
+.merchant-agent-chat[hidden] {
+    display: none;
+}
+
+.merchant-agent-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px;
+    background: #111827;
+    color: white;
+}
+
+.merchant-agent-header h2 {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.merchant-agent-header p {
+    color: #d1d5db;
+    font-size: 12px;
+}
+
+.merchant-agent-close {
+    border: 0;
+    background: transparent;
+    color: #d1d5db;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.merchant-agent-messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    background: #f9fafb;
+}
+
+.merchant-agent-message {
+    max-width: 90%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.merchant-agent-message p,
+.merchant-agent-message ul,
+.merchant-agent-message ol,
+.merchant-agent-message table,
+.merchant-agent-message pre,
+.merchant-agent-message h1,
+.merchant-agent-message h2,
+.merchant-agent-message h3,
+.merchant-agent-message h4,
+.merchant-agent-message h5,
+.merchant-agent-message h6 {
+    margin-bottom: 8px;
+}
+
+.merchant-agent-message > :last-child {
+    margin-bottom: 0;
+}
+
+.agent-message {
+    align-self: flex-start;
+    background: white;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: #111827;
+    color: white;
+}
+
+.merchant-agent-message ul,
+.merchant-agent-message ol {
+    padding-left: 20px;
+}
+
+.merchant-agent-message h1,
+.merchant-agent-message h2,
+.merchant-agent-message h3,
+.merchant-agent-message h4,
+.merchant-agent-message h5,
+.merchant-agent-message h6 {
+    font-size: 14px;
+}
+
+.merchant-agent-message code {
+    padding: 2px 4px;
+    border-radius: 4px;
+    background: rgba(17, 24, 39, .08);
+    font-family: Consolas, monospace;
+}
+
+.user-message code {
+    background: rgba(255, 255, 255, .15);
+}
+
+.merchant-agent-message pre {
+    padding: 8px;
+    overflow-x: auto;
+    border-radius: 6px;
+    background: #111827;
+    color: #f9fafb;
+}
+
+.merchant-agent-message pre code {
+    padding: 0;
+    background: transparent;
+}
+
+.merchant-agent-message table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.merchant-agent-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 8px;
+}
+
+.merchant-agent-message th,
+.merchant-agent-message td {
+    padding: 6px;
+    border: 1px solid #d1d5db;
+    text-align: left;
+    vertical-align: top;
+}
+
+.merchant-agent-message th {
+    background: #f3f4f6;
+    font-weight: 700;
+}
+
+.merchant-agent-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid #e5e7eb;
+    background: white;
+}
+
+.merchant-agent-form textarea {
+    flex: 1;
+    resize: none;
+    min-height: 40px;
+    max-height: 100px;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 13px;
+}
+
+.merchant-agent-form textarea:focus {
+    outline: 2px solid #9ca3af;
+    outline-offset: 1px;
+}
+
+.merchant-agent-form button {
+    min-height: 40px;
+    padding: 0 13px;
+    border: 0;
+    border-radius: 8px;
+    background: #111827;
+    color: white;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.merchant-agent-form button:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.merchant-agent-loading {
+    padding: 0 14px 10px;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.agent-error-message {
+    align-self: flex-start;
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #b91c1c;
+}
+
+.agent-error-message p {
+    color: #b91c1c;
+}
+
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .sidebar {
+        display: none;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+
+    .merchant-agent-widget {
+        right: 16px;
+        bottom: 16px;
+    }
+
+    .merchant-agent-chat {
+        height: min(500px, calc(100vh - 100px));
+    }
+}
+
+/* Dashboard visual polish */
+:root {
+    --merchant-ink: #17202b;
+    --merchant-muted: #718096;
+    --merchant-line: #e6ebf0;
+    --merchant-accent: #c97845;
+    --merchant-surface: #ffffff;
+}
+
+body {
+    background:
+        radial-gradient(circle at 82% -12%, rgba(201, 120, 69, .11), transparent 28rem),
+        #f5f7fa;
+    color: var(--merchant-ink);
+}
+
+.dashboard { min-height: 100vh; }
+
+.sidebar {
+    width: 248px;
+    padding: 28px 18px;
+    background: linear-gradient(180deg, #121a24 0%, #1d2937 100%);
+    box-shadow: 8px 0 30px rgba(15, 23, 42, .08);
+}
+
+.sidebar h2 {
+    margin: 0 12px 36px;
+    color: #fff;
+    font-size: 19px;
+    letter-spacing: -.03em;
+}
+
+.sidebar h2::before {
+    content: "✦";
+    margin-right: 9px;
+    color: #e8a478;
+}
+
+.sidebar nav { gap: 5px; }
+.sidebar a {
+    padding: 13px 14px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 13px;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+}
+.sidebar a:hover { transform: translateX(2px); }
+.sidebar a.active { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .08); }
+.sidebar a.active::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    margin: 0 9px 0 -5px;
+    border-radius: 3px;
+    vertical-align: -3px;
+    background: #e8a478;
+}
+
+.main-content {
+    max-width: 1480px;
+    width: 100%;
+    padding: 42px clamp(22px, 4vw, 58px);
+}
+
+.dashboard-header {
+    margin-bottom: 38px;
+    padding-bottom: 26px;
+    border-bottom: 1px solid var(--merchant-line);
+}
+
+.dashboard-header h1 {
+    margin-bottom: 7px;
+    color: var(--merchant-ink);
+    font-size: clamp(28px, 4vw, 40px);
+    letter-spacing: -.05em;
+}
+
+.dashboard-header p { color: var(--merchant-muted); }
+.dashboard-header button {
+    border: 1px solid var(--merchant-line);
+    background: var(--merchant-surface);
+    color: #4a5563;
+    font-weight: 700;
+    transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.dashboard-header button:hover { border-color: #d2a487; background: #fffaf6; transform: translateY(-1px); }
+
+.stats-grid { gap: 18px; }
+.stat-card {
+    position: relative;
+    overflow: hidden;
+    padding: 24px;
+    border: 1px solid var(--merchant-line);
+    border-radius: 14px;
+    box-shadow: 0 7px 22px rgba(26, 32, 42, .045);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.stat-card::after {
+    content: "";
+    position: absolute;
+    right: -26px;
+    bottom: -34px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(201, 120, 69, .07);
+}
+.stat-card:hover { transform: translateY(-3px); border-color: #e8c4ae; box-shadow: 0 14px 30px rgba(26, 32, 42, .09); }
+.stat-card h3 { position: relative; z-index: 1; color: var(--merchant-muted); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+.stat-card p { position: relative; z-index: 1; color: var(--merchant-ink); font-size: clamp(25px, 3vw, 32px); letter-spacing: -.04em; }
+
+.agent-section { margin-top: 46px; }
+.agent-section h2 { margin-bottom: 15px; font-size: 21px; letter-spacing: -.03em; }
+.agent-placeholder {
+    margin-top: 0;
+    padding: 28px;
+    border: 1px solid var(--merchant-line);
+    box-shadow: 0 7px 22px rgba(26, 32, 42, .035);
+}
+.agent-placeholder p { line-height: 1.6; }
+
+@media (max-width: 900px) {
+    .sidebar { width: 210px; }
+    .main-content { padding: 32px 24px; }
+}
+
+@media (max-width: 600px) {
+    .main-content { padding: 26px 16px 90px; }
+    .dashboard-header { align-items: flex-start; gap: 18px; }
+    .dashboard-header h1 { font-size: 30px; }
+    .dashboard-header button { padding: 9px 13px; }
+    .stat-card { padding: 20px; }
+}
+
+/* Keep the merchant workspace in the same ShopAI visual language. */
+body {
+    background-color: #eef3f5;
+    background-image:
+        linear-gradient(rgba(20, 35, 45, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 35, 45, .025) 1px, transparent 1px);
+    background-size: 32px 32px;
+}
+
+.sidebar {
+    background: linear-gradient(180deg, #14232d 0%, #203a47 100%);
+}
+
+.sidebar h2::before {
+    color: #f2a381;
+}
+
+.sidebar a.active::before {
+    background: #e86f45;
+}
+
+.dashboard-header {
+    border-bottom-color: #d7e1e5;
+}
+
+.dashboard-header h1,
+.agent-section h2 {
+    color: #14232d;
+}
+
+.stat-card {
+    border-color: #dce5e9;
+    box-shadow: 0 7px 22px rgba(20, 35, 45, .05);
+}
+
+.stat-card::after {
+    background: rgba(232, 111, 69, .09);
+}
+
+.stat-card:hover {
+    border-color: #e9b39d;
+    box-shadow: 0 16px 34px rgba(20, 35, 45, .11);
+}
+
+.agent-placeholder {
+    border-color: #dce5e9;
+    box-shadow: 0 7px 22px rgba(20, 35, 45, .04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}
