@@ -1,0 +1,32 @@
+UCP_PROFILE = {
+    "ucp": {
+        "version": "2026-08-25",
+
+        "services": {
+            "dev.ucp.shopping": [
+                {
+                    "version": "2026-08-25",
+                    "spec": "https://ucp.dev/2026-08-25/specification/overview",
+                    "transport": "mcp",
+                    "endpoint": "https://c786-49-43-161-1.ngrok-free.app/ucp/mcp"
+                }
+            ]
+        },
+
+        "capabilities": {
+            "dev.ucp.shopping.catalog.search": [
+                {
+                    "version": "2026-08-25",
+                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/catalog/search"
+                }
+            ],
+
+            "dev.ucp.shopping.catalog.lookup": [
+                {
+                    "version": "2026-08-25",
+                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/catalog/lookup"
+                }
+            ]
+        }
+    }
+}
