@@ -26,6 +26,13 @@ UCP_PROFILE = {
                     "version": "2026-08-25",
                     "spec": "https://ucp.dev/2026-08-25/specification/shopping/catalog/lookup"
                 }
+            ],
+
+            "dev.ucp.shopping.cart": [
+                {
+                    "version": "2026-08-25",
+                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/cart"
+                }
             ]
         }
     }

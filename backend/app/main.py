@@ -14,6 +14,7 @@ from backend.app.api.payments import router as payment_router
 from backend.app.api.merchant import router as merchant_router
 from backend.app.api.merchant_agent import router as merchant_agent_router
 from backend.app.mcp.server import mcp
+from backend.app.mcp.auth import MCPAuthMiddleware
 
 from fastapi.responses import JSONResponse
 from backend.app.ucp.profile import UCP_PROFILE
@@ -43,7 +44,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
-app.mount("/ucp/mcp", mcp_app)
+app.mount("/ucp/mcp", MCPAuthMiddleware(mcp_app))
 
 
 # Allow the plain-JS frontend (served on a different port during development)
