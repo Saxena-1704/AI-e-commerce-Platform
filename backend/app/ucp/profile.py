@@ -8,7 +8,7 @@ UCP_PROFILE = {
                     "version": "2026-08-25",
                     "spec": "https://ucp.dev/2026-08-25/specification/overview",
                     "transport": "mcp",
-                    "endpoint": "https://c786-49-43-161-1.ngrok-free.app/ucp/mcp"
+                    "endpoint": "https://d6d1-49-43-161-175.ngrok-free.app/ucp/mcp"
                 }
             ]
         },
@@ -32,6 +32,13 @@ UCP_PROFILE = {
                 {
                     "version": "2026-08-25",
                     "spec": "https://ucp.dev/2026-08-25/specification/shopping/cart"
+                }
+            ],
+
+            "dev.ucp.shopping.checkout": [
+                {
+                    "version": "2026-08-25",
+                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/checkout"
                 }
             ]
         }
