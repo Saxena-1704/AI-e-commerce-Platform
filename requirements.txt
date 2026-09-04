@@ -11,5 +11,6 @@ razorpay
 langchain
 langchain-mcp-adapters
 langchain-groq
+httpx
 fastmcp
 ngrok

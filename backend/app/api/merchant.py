@@ -6,6 +6,8 @@ from backend.app.auth.security import get_db, get_current_admin
 from backend.app.models.product import Product
 from backend.app.models.order import Order
 from backend.app.models.payment import Payment
+from backend.app.models.order_item import OrderItem
+from backend.app.schemas.order import OrderResponse
 
 
 router = APIRouter(
@@ -71,3 +73,28 @@ def get_merchant_overview(
         "successful_payments": successful_payments,
         "failed_payments": failed_payments
     }
+
+
+
+@router.get(
+    "/orders",
+    response_model=list[OrderResponse]
+)
+def get_all_orders(
+    db: Session = Depends(get_db),
+    current_admin=Depends(get_current_admin)
+):
+    orders = (
+        db.query(Order)
+        .order_by(Order.created_at.desc())
+        .all()
+    )
+
+    for order in orders:
+        order.items = (
+            db.query(OrderItem)
+            .filter(OrderItem.order_id == order.id)
+            .all()
+        )
+
+    return orders

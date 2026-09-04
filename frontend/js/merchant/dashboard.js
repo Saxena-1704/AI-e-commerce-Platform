@@ -8,6 +8,13 @@ let agentForm;
 let agentInput;
 let agentSend;
 let agentLoading;
+let agentLoadingTimer;
+
+const agentLoadingMessages = [
+    "Thinking through your store data",
+    "Checking recent activity",
+    "Preparing a clear answer",
+];
 
 function escapeHtml(value) {
     return String(value ?? "")
@@ -120,6 +127,22 @@ function setAgentLoading(loading) {
     agentLoading.hidden = !loading;
     agentSend.disabled = loading;
     agentInput.disabled = loading;
+    agentChat.classList.toggle("is-loading", loading);
+    agentChat.setAttribute("aria-busy", String(loading));
+
+    window.clearInterval(agentLoadingTimer);
+    if (!loading) {
+        agentLoading.textContent = "";
+        return;
+    }
+
+    let messageIndex = 0;
+    const updateLoadingMessage = () => {
+        agentLoading.textContent = agentLoadingMessages[messageIndex];
+        messageIndex = (messageIndex + 1) % agentLoadingMessages.length;
+    };
+    updateLoadingMessage();
+    agentLoadingTimer = window.setInterval(updateLoadingMessage, 1800);
 }
 
 function setAgentOpen(open) {
@@ -193,6 +216,11 @@ function initializeAgentChat() {
     agentToggle.addEventListener("click", () => setAgentOpen(agentChat.hidden));
     agentClose.addEventListener("click", () => setAgentOpen(false));
     agentForm.addEventListener("submit", sendAgentMessage);
+    agentLoading.setAttribute("role", "status");
+    agentInput.addEventListener("input", () => {
+        agentInput.style.height = "auto";
+        agentInput.style.height = `${Math.min(agentInput.scrollHeight, 120)}px`;
+    });
     agentInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();

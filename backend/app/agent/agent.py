@@ -5,6 +5,7 @@ from langchain_groq import ChatGroq
 from langchain.agents import create_agent
 
 from .mcp_client import get_razorpay_tools
+from .tools import get_merchant_api_tools
 from .prompts import MERCHANT_AGENT_SYSTEM_PROMPT
 
 
@@ -22,9 +23,10 @@ if not GROQ_MODEL:
     raise ValueError("GROQ_MODEL must be set in the environment.")
 
 
-async def create_merchant_agent():
+async def create_merchant_agent(auth_token: str):
 
     razorpay_tools = await get_razorpay_tools()
+    merchant_api_tools = get_merchant_api_tools(auth_token)
 
     selected_tool_names = {
         "fetch_all_orders",
@@ -53,7 +55,7 @@ async def create_merchant_agent():
 
     agent = create_agent(
         llm,
-        selected_tools,
+        [*selected_tools, *merchant_api_tools],
         system_prompt=MERCHANT_AGENT_SYSTEM_PROMPT,
     )
 

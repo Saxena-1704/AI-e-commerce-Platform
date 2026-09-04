@@ -29,10 +29,12 @@ def search_catalog(
     db: Session,
     query: Optional[str] = None,
     category_id: Optional[int] = None,
+    category_ids: Optional[Sequence[int]] = None,
     min_price: Optional[Decimal] = None,
     max_price: Optional[Decimal] = None,
     limit: int = 10,
     offset: int = 0,
+    cursor: Optional[str] = None,
 ) -> dict:
     """
     Search the product catalog using database-side filtering.
@@ -61,7 +63,11 @@ def search_catalog(
             )
         )
 
-    if category_id is not None:
+    if category_ids is not None:
+        products_query = products_query.filter(
+            Product.category_id.in_(category_ids)
+        )
+    elif category_id is not None:
         products_query = products_query.filter(
             Product.category_id == category_id
         )
@@ -78,13 +84,25 @@ def search_catalog(
 
     total = products_query.count()
 
+    if cursor is not None:
+        try:
+            cursor_id = int(cursor)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Invalid catalog pagination cursor") from exc
+
+        products_query = products_query.filter(Product.id > cursor_id)
+        offset = 0
+
     rows = (
         products_query
         .order_by(Product.id)
         .offset(offset)
-        .limit(limit)
+        .limit(limit + 1)
         .all()
     )
+
+    has_more = len(rows) > limit
+    rows = rows[:limit]
 
     products = [
         _product_to_dict(product, category)
@@ -96,7 +114,8 @@ def search_catalog(
         "total": total,
         "limit": limit,
         "offset": offset,
-        "has_more": offset + len(products) < total,
+        "has_more": has_more,
+        "next_cursor": str(rows[-1][0].id) if has_more else None,
     }
 
 

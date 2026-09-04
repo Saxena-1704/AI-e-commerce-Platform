@@ -16,7 +16,7 @@ from backend.app.api.merchant_agent import router as merchant_agent_router
 from backend.app.mcp.server import mcp
 from backend.app.mcp.auth import MCPAuthMiddleware
 
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from backend.app.ucp.profile import UCP_PROFILE
 
 from pathlib import Path
@@ -26,6 +26,7 @@ from fastapi.staticfiles import StaticFiles
 BASE_DIR = Path(__file__).resolve().parents[2]
 UPLOADS_DIR = BASE_DIR / "uploads"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+FRONTEND_DIR = BASE_DIR / "frontend"
 
 
 mcp_app = mcp.http_app(
@@ -77,9 +78,7 @@ app.include_router(merchant_agent_router)
 
 @app.get("/")
 def root():
-    return {
-        "message": "Ecommerce backend is running"
-    }
+    return FileResponse(FRONTEND_DIR / "index.html")
 
 
 @app.get("/.well-known/ucp")
@@ -96,3 +95,6 @@ def database_test():
         return {
             "database": result.scalar()
         }
+
+
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

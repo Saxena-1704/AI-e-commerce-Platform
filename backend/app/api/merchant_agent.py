@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 
 from backend.app.auth.security import get_current_admin
@@ -21,6 +22,8 @@ router = APIRouter(
     prefix="/merchant",
     tags=["Merchant Agent"],
 )
+
+security = HTTPBearer()
 
 
 def _final_response_content(result) -> str:
@@ -55,6 +58,7 @@ def _final_response_content(result) -> str:
 async def merchant_agent_chat(
     request: MerchantAgentChatRequest,
     current_admin=Depends(get_current_admin),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
     del current_admin
 
@@ -63,7 +67,7 @@ async def merchant_agent_chat(
         # cannot prevent the rest of the API from starting.
         from backend.app.agent.agent import create_merchant_agent
 
-        agent = await create_merchant_agent()
+        agent = await create_merchant_agent(credentials.credentials)
         result = await agent.ainvoke(
             {
                 "messages": [

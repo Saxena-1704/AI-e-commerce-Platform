@@ -1,8 +1,10 @@
 from typing import Any, Optional
 
 from fastmcp import FastMCP
+from sqlalchemy import func, or_
 
 from backend.app.database import SessionLocal
+from backend.app.models.category import Category
 from backend.app.services.catalog_service import (
     search_catalog as db_search_catalog,
     lookup_catalog as db_lookup_catalog,
@@ -88,7 +90,7 @@ def register_catalog_tools(mcp: FastMCP) -> None:
             filters = catalog.get("filters", {})
             price = filters.get("price", {})
             pagination = catalog.get("pagination", {})
-            category_id = None
+            category_ids = None
 
             # For our first implementation, categories are matched
             # by category name.
@@ -97,28 +99,58 @@ def register_catalog_tools(mcp: FastMCP) -> None:
             # and proper UCP filtering later.
 
             if filters.get("categories"):
-                from backend.app.models.category import Category
+                category_values = {
+                    str(value).strip()
+                    for value in filters["categories"]
+                    if str(value).strip()
+                }
+                category_ids_from_input = [
+                    int(value)
+                    for value in category_values
+                    if value.isdigit()
+                ]
+                category_names_from_input = [
+                    value.lower()
+                    for value in category_values
+                    if not value.isdigit()
+                ]
+                category_conditions = []
 
-                category = (
+                if category_ids_from_input:
+                    category_conditions.append(
+                        Category.id.in_(category_ids_from_input)
+                    )
+                if category_names_from_input:
+                    category_conditions.extend(
+                        [
+                            func.lower(Category.category_name).in_(
+                                category_names_from_input
+                            ),
+                            func.lower(Category.url_slug).in_(
+                                category_names_from_input
+                            ),
+                        ]
+                    )
+
+                categories = (
                     db.query(Category)
                     .filter(
-                        Category.category_name.in_(filters["categories"]),
                         Category.status == "active",
+                        or_(*category_conditions),
                     )
-                    .first()
+                    .all()
                 )
-
-                if category:
-                    category_id = category.id
+                category_ids = [category.id for category in categories]
 
             result = db_search_catalog(
                 db=db,
                 query=catalog.get("query"),
-                category_id=category_id,
+                category_ids=category_ids,
                 min_price=(price.get("min", 0) / 100 if price.get("min") is not None else None),
                 max_price=(price.get("max") / 100 if price.get("max") is not None else None),
                 limit=pagination.get("limit", 10),
                 offset=pagination.get("offset", 0),
+                cursor=pagination.get("cursor"),
             )
 
             products = [
@@ -134,9 +166,39 @@ def register_catalog_tools(mcp: FastMCP) -> None:
                 "pagination": {
                     "has_next_page": result["has_more"],
                     "total_count": result["total"],
+                    "cursor": result["next_cursor"],
                 },
             }
 
+        finally:
+            db.close()
+
+    @mcp.tool()
+    def list_categories(meta: Optional[dict] = None) -> dict:
+        """List all active product categories available for shopping."""
+
+        del meta
+
+        db = SessionLocal()
+
+        try:
+            categories = (
+                db.query(Category)
+                .filter(Category.status == "active")
+                .order_by(Category.category_name, Category.id)
+                .all()
+            )
+
+            return {
+                "categories": [
+                    {
+                        "id": str(category.id),
+                        "name": category.category_name,
+                        "slug": category.url_slug,
+                    }
+                    for category in categories
+                ]
+            }
         finally:
             db.close()
 

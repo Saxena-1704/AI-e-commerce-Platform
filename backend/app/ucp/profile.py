@@ -9,7 +9,7 @@ UCP_PROFILE = {
                     "spec": "https://ucp.dev/2026-08-25/specification/overview",
                     "transport": "mcp",
                     "schema": "https://ucp.dev/2026-08-25/services/shopping/mcp.openrpc.json",
-                    "endpoint": "https://d6d1-49-43-161-175.ngrok-free.app/ucp/mcp"
+                    "endpoint": "http://localhost:8000/ucp/mcp/"
                 }
             ]
         },
