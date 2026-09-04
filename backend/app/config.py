@@ -9,6 +9,12 @@ RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET")
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 APP_ENV = os.getenv("APP_ENV", "development")
 
+
+FRONTEND_BASE_URL = os.getenv(
+    "FRONTEND_BASE_URL",
+    "http://localhost:5500",
+)
+
 if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
     raise RuntimeError("Razorpay credentials are not configured")
 

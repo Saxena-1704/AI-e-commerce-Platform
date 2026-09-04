@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Complete Payment</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+    }
+
+    .card {
+      width: min(420px, 90vw);
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .status {
+      margin-top: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .success {
+      color: #2e7d32;
+    }
+
+    .error {
+      color: #c62828;
+    }
+
+    .loading {
+      color: #666;
+    }
+
+    .back-link {
+      display: none;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #17181a;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2 id="title">Complete your payment</h2>
+
+    <p id="status" class="status loading">
+      Loading payment...
+    </p>
+
+    <a
+      id="back-link"
+      class="back-link"
+      href="/"
+    >
+      Return to store
+    </a>
+  </div>
+
+  <script type="module">
+    import { api } from "./js/api.js";
+
+    const statusNode = document.querySelector("#status");
+    const titleNode = document.querySelector("#title");
+    const backLink = document.querySelector("#back-link");
+
+    const RAZORPAY_SCRIPT_URL =
+      "https://checkout.razorpay.com/v1/checkout.js";
+
+    let razorpayScriptPromise = null;
+
+
+    function showError(message) {
+      titleNode.textContent = "Payment failed";
+
+      statusNode.textContent = message;
+
+      statusNode.className = "status error";
+    }
+
+
+    function showSuccess(message) {
+      titleNode.textContent = "Payment successful";
+
+      statusNode.textContent = message;
+
+      statusNode.className = "status success";
+
+      backLink.style.display = "inline-block";
+    }
+
+
+    function loadRazorpayScript() {
+      if (window.Razorpay) {
+        return Promise.resolve(window.Razorpay);
+      }
+
+      if (razorpayScriptPromise) {
+        return razorpayScriptPromise;
+      }
+
+      razorpayScriptPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+
+        script.src = RAZORPAY_SCRIPT_URL;
+        script.async = true;
+
+        script.onload = () => {
+          if (window.Razorpay) {
+            resolve(window.Razorpay);
+          } else {
+            reject(
+              new Error(
+                "Razorpay Checkout loaded but is unavailable."
+              )
+            );
+          }
+        };
+
+        script.onerror = () => {
+          razorpayScriptPromise = null;
+
+          reject(
+            new Error(
+              "Could not load the payment gateway."
+            )
+          );
+        };
+
+        document.head.appendChild(script);
+      });
+
+      return razorpayScriptPromise;
+    }
+
+
+    async function loadPayment() {
+      const params = new URLSearchParams(
+        window.location.search
+      );
+
+      const paymentId = params.get("payment_id");
+
+      const hashParams = new URLSearchParams(
+        window.location.hash.substring(1)
+      );
+
+      const paymentToken = hashParams.get("payment_token");
+
+      if (!paymentId) {
+        throw new Error(
+          "Missing payment ID."
+        );
+      }
+
+      if (!paymentToken) {
+        throw new Error(
+          "Invalid or missing payment session."
+        );
+      }
+
+
+      /*
+       * The Buyer Agent has already created the payment.
+       *
+       * We DO NOT call:
+       *
+       *     api.orders.checkout()
+       *
+       * or:
+       *
+       *     api.payments.create()
+       *
+       * here.
+       *
+       * We only retrieve the existing payment.
+       */
+
+      statusNode.textContent =
+        "Preparing secure payment...";
+
+
+      const payment =
+        await api.payments.session.get(
+          paymentId,
+          paymentToken
+        );
+
+
+      if (!payment) {
+        throw new Error(
+          "Payment could not be found."
+        );
+      }
+
+
+      if (payment.status !== "created") {
+        throw new Error(
+          `This payment is no longer available. Current status: ${payment.status}`
+        );
+      }
+
+
+      if (!payment.razorpay_order_id) {
+        throw new Error(
+          "Razorpay order information is missing."
+        );
+      }
+
+
+      if (!payment.razorpay_key_id) {
+        throw new Error(
+          "Payment gateway configuration is missing."
+        );
+      }
+
+
+      const amount = Number(payment.amount);
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        throw new Error(
+          "Invalid payment amount."
+        );
+      }
+
+
+      /*
+       * Load Razorpay's official Checkout SDK.
+       */
+
+      await loadRazorpayScript();
+
+
+      statusNode.textContent =
+        "Opening secure payment window...";
+
+
+      /*
+       * This is the SAME Razorpay mechanism used
+       * by your normal website checkout.
+       *
+       * The important difference is:
+       *
+       *     payment already exists
+       *
+       * because the Buyer Agent created it.
+       */
+
+      const razorpay =
+        new window.Razorpay({
+
+          key: payment.razorpay_key_id,
+
+          amount: amount,
+
+          currency:
+            payment.currency || "INR",
+
+          name: "ShopAI",
+
+          description:
+            `Order ${
+              payment.order_number ||
+              payment.order_id
+            }`,
+
+          order_id:
+            payment.razorpay_order_id,
+
+
+          /*
+           * Razorpay successfully completed
+           * the customer's payment.
+           */
+
+          handler: async (response) => {
+
+            try {
+
+              titleNode.textContent =
+                "Verifying payment...";
+
+              statusNode.textContent =
+                "Please wait while we verify your payment.";
+
+              statusNode.className =
+                "status loading";
+
+
+              /*
+               * IMPORTANT:
+               *
+               * The backend performs the actual
+               * Razorpay signature verification.
+               */
+
+              const result =
+                await api.payments.session.verify({
+
+                  razorpay_order_id:
+                    response.razorpay_order_id,
+
+                  razorpay_payment_id:
+                    response.razorpay_payment_id,
+
+                  razorpay_signature:
+                    response.razorpay_signature,
+
+                }, paymentToken);
+
+
+              if (result.status !== "paid") {
+                throw new Error(
+                  "Payment verification did not return a paid status."
+                );
+              }
+
+
+              showSuccess(
+                "Your payment has been verified successfully. You can return to the Buyer Agent."
+              );
+
+            } catch (error) {
+
+              showError(
+                `Payment verification failed: ${error.message}`
+              );
+
+            }
+
+          },
+
+        });
+
+
+      /*
+       * Razorpay reports payment failure.
+       */
+
+      razorpay.on(
+        "payment.failed",
+        async (response) => {
+
+          try {
+
+            await api.payments.session.fail(
+              payment.id,
+              paymentToken
+            );
+
+          } catch (_) {
+            // The payment failure is already being
+            // handled below.
+          }
+
+
+          const description =
+            response?.error?.description ||
+            "Payment was not completed. Please try again.";
+
+
+          showError(description);
+
+        }
+      );
+
+
+      /*
+       * User closes the Razorpay window without
+       * completing payment.
+       */
+
+      razorpay.on(
+        "modal.ondismiss",
+        async () => {
+
+          try {
+
+            await api.payments.session.fail(
+              payment.id,
+              paymentToken
+            );
+
+          } catch (_) {
+            // Ignore failure-reporting errors.
+          }
+
+
+          showError(
+            "Payment was cancelled."
+          );
+
+        }
+      );
+
+
+      /*
+       * THIS opens the actual Razorpay UI.
+       */
+
+      razorpay.open();
+    }
+
+
+    /*
+     * Start the payment flow.
+     */
+
+    loadPayment().catch((error) => {
+
+      showError(
+        error.message
+      );
+
+    });
+
+  </script>
+
+</body>
+</html>

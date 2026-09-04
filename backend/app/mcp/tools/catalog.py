@@ -72,12 +72,8 @@ def register_catalog_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def search_catalog(
-        query: Optional[str] = None,
-        categories: Optional[list[str]] = None,
-        min_price: Optional[float] = None,
-        max_price: Optional[float] = None,
-        limit: int = 10,
-        offset: int = 0,
+        meta: dict,
+        catalog: dict,
     ) -> dict:
         """
         Search the product catalog.
@@ -89,6 +85,9 @@ def register_catalog_tools(mcp: FastMCP) -> None:
         db = SessionLocal()
 
         try:
+            filters = catalog.get("filters", {})
+            price = filters.get("price", {})
+            pagination = catalog.get("pagination", {})
             category_id = None
 
             # For our first implementation, categories are matched
@@ -97,13 +96,13 @@ def register_catalog_tools(mcp: FastMCP) -> None:
             # We will improve this to support hierarchical categories
             # and proper UCP filtering later.
 
-            if categories:
+            if filters.get("categories"):
                 from backend.app.models.category import Category
 
                 category = (
                     db.query(Category)
                     .filter(
-                        Category.category_name.in_(categories),
+                        Category.category_name.in_(filters["categories"]),
                         Category.status == "active",
                     )
                     .first()
@@ -114,12 +113,12 @@ def register_catalog_tools(mcp: FastMCP) -> None:
 
             result = db_search_catalog(
                 db=db,
-                query=query,
+                query=catalog.get("query"),
                 category_id=category_id,
-                min_price=min_price,
-                max_price=max_price,
-                limit=limit,
-                offset=offset,
+                min_price=(price.get("min", 0) / 100 if price.get("min") is not None else None),
+                max_price=(price.get("max") / 100 if price.get("max") is not None else None),
+                limit=pagination.get("limit", 10),
+                offset=pagination.get("offset", 0),
             )
 
             products = [
@@ -143,7 +142,8 @@ def register_catalog_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def lookup_catalog(
-        ids: list[str],
+        meta: dict,
+        catalog: dict,
     ) -> dict:
         """
         Retrieve multiple products by their product IDs.
@@ -154,7 +154,7 @@ def register_catalog_tools(mcp: FastMCP) -> None:
         try:
             product_ids = []
 
-            for product_id in ids:
+            for product_id in catalog.get("ids", []):
                 try:
                     product_ids.append(int(product_id))
                 except ValueError:
@@ -180,7 +180,8 @@ def register_catalog_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def get_product(
-        id: str,
+        meta: dict,
+        catalog: dict,
     ) -> dict:
         """
         Retrieve complete details for one product.
@@ -190,7 +191,7 @@ def register_catalog_tools(mcp: FastMCP) -> None:
 
         try:
             try:
-                product_id = int(id)
+                product_id = int(catalog["id"])
             except ValueError:
                 return {
                     "ucp": _ucp_metadata(
@@ -200,7 +201,7 @@ def register_catalog_tools(mcp: FastMCP) -> None:
                         {
                             "type": "info",
                             "code": "not_found",
-                            "content": id,
+                        "content": catalog.get("id"),
                         }
                     ],
                 }
@@ -219,7 +220,7 @@ def register_catalog_tools(mcp: FastMCP) -> None:
                         {
                             "type": "info",
                             "code": "not_found",
-                            "content": id,
+                        "content": catalog.get("id"),
                         }
                     ],
                 }

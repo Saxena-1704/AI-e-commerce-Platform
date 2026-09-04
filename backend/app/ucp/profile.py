@@ -8,6 +8,7 @@ UCP_PROFILE = {
                     "version": "2026-08-25",
                     "spec": "https://ucp.dev/2026-08-25/specification/overview",
                     "transport": "mcp",
+                    "schema": "https://ucp.dev/2026-08-25/services/shopping/mcp.openrpc.json",
                     "endpoint": "https://d6d1-49-43-161-175.ngrok-free.app/ucp/mcp"
                 }
             ]
@@ -17,30 +18,36 @@ UCP_PROFILE = {
             "dev.ucp.shopping.catalog.search": [
                 {
                     "version": "2026-08-25",
-                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/catalog/search"
+                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/catalog/search",
+                    "schema": "https://ucp.dev/2026-08-25/schemas/shopping/catalog_search.json"
                 }
             ],
 
             "dev.ucp.shopping.catalog.lookup": [
                 {
                     "version": "2026-08-25",
-                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/catalog/lookup"
+                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/catalog/lookup",
+                    "schema": "https://ucp.dev/2026-08-25/schemas/shopping/catalog_lookup.json"
                 }
             ],
 
             "dev.ucp.shopping.cart": [
                 {
                     "version": "2026-08-25",
-                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/cart"
+                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/cart",
+                    "schema": "https://ucp.dev/2026-08-25/schemas/shopping/cart.json"
                 }
             ],
 
             "dev.ucp.shopping.checkout": [
                 {
                     "version": "2026-08-25",
-                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/checkout"
+                    "spec": "https://ucp.dev/2026-08-25/specification/shopping/checkout",
+                    "schema": "https://ucp.dev/2026-08-25/schemas/shopping/checkout.json"
                 }
             ]
-        }
+        },
+
+        "payment_handlers": {}
     }
 }
