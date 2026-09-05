@@ -1,4 +1,4 @@
-# ShopAI Customer Agent
+# AgenCart Customer Agent
 
 This folder is a self-contained customer-agent service. It serves the web UI
 and its API from one FastAPI process; no separate frontend HTTP server is
@@ -21,8 +21,6 @@ The service expects these values in `.env`:
 ```env
 GROQ_API_KEY=...
 MERCHANT_API_URL=http://localhost:8000
-BUYER_EMAIL=...
-BUYER_PASSWORD=...
 ```
 
 The browser login calls the merchant's existing `/auth/login` endpoint. The

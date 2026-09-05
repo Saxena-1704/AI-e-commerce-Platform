@@ -51,7 +51,7 @@ export async function runCheckout() {
       key: payment.razorpay_key_id,
       amount: amountInPaise,
       currency: payment.currency || "INR",
-      name: "ShopAI",
+      name: "AgenCart",
       description: `Order ${order.order_number}`,
       order_id: payment.razorpay_order_id,
       handler: async (response) => {

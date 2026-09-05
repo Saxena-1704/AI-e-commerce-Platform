@@ -12,7 +12,7 @@ APP_ENV = os.getenv("APP_ENV", "development")
 
 FRONTEND_BASE_URL = os.getenv(
     "FRONTEND_BASE_URL",
-    "http://localhost:5500",
+    "http://localhost:8000",
 )
 
 if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:

@@ -1,4 +1,4 @@
-# ShopAI Frontend
+# AgenCart Frontend
 
 Plain HTML + CSS + JavaScript (ES modules) frontend for the AI E-Commerce Platform.
 
@@ -16,8 +16,8 @@ HTML pages
 
 `js/api.js` is the frontend's API boundary. Backend route knowledge and the
 base URL (`js/config.js`) live there; page code never contains `fetch()` calls
-or backend URLs. Later a customer AI agent can use the same commerce
-capabilities instead of manipulating DOM elements.
+or backend URLs. The Customer Agent uses the same commerce capabilities
+through the backend MCP endpoint instead of manipulating page DOM elements.
 
 ## Pages
 
@@ -38,31 +38,21 @@ payment, opens Razorpay's checkout modal, and verifies the payment signature
 
 ## Run
 
-From the repository root:
-
-```bash
-python -m http.server 5500 --directory frontend
-```
-
-Then open:
-
-```
-http://localhost:5500/
-```
-
-Do not open the HTML files directly with `file://`; ES modules and API requests
-work more reliably through a local HTTP server.
-
-## Backend
-
-Start FastAPI (from the repository root):
+The storefront is served by the commerce backend. Start FastAPI from the
+repository root:
 
 ```bash
 uvicorn backend.app.main:app --reload --port 8000
 ```
 
-`backend/app/main.py` enables CORS for common local frontend origins
-(`localhost:5500`, `5173`, `3000`). Tighten `allow_origins` before deployment.
+Then open:
+
+```
+http://localhost:8000/
+```
+
+`backend/app/main.py` serves the API and this frontend from the same FastAPI
+process.
 
 ## Shared helpers
 
@@ -80,11 +70,3 @@ Change only:
 
 when FastAPI moves from `http://localhost:8000` to a deployed URL.
 Razorpay credentials come from the backend `.env` (never the frontend).
-
-## Future agent structure
-
-- `js/agent/customer-agent.js` (planned) — customer agent.
-- `js/agent/merchant-agent.js` (planned) — merchant agent.
-
-Agents should call application/API capability functions (the same `js/api.js`
-boundary the UI uses) rather than manipulating page DOM or the database.

@@ -43,7 +43,26 @@ button, input, select { font: inherit; }
   z-index: 10;
   backdrop-filter: blur(12px);
 }
-.brand { font-size: 21px; font-weight: 800; letter-spacing: -.04em; }
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.brand-mark {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  color: white;
+  background: var(--primary);
+}
+.brand-mark svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+.brand-copy { display: grid; gap: 0; line-height: 1; }
+.brand-name { font-size: 21px; font-weight: 850; letter-spacing: -.045em; }
+.brand-tagline { margin-top: 4px; color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .045em; text-transform: lowercase; }
 .nav { display: flex; align-items: center; gap: 24px; font-size: 14px; color: #4d525a; }
 .nav a:hover { color: var(--text); }
 .nav-button { border: 0; background: none; cursor: pointer; color: inherit; }
@@ -691,7 +710,7 @@ button, a, input, select, .product-card, .category-card, .card, .cart-row {
   }
 }
 
-/* ShopAI signature direction: cool market-hall surfaces + signal coral */
+/* AgenCart signature direction: cool market-hall surfaces + signal coral */
 :root {
   --bg: #eef3f5;
   --surface: #ffffff;

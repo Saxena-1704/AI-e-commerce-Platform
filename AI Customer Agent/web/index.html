@@ -3,21 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ShopAI · Customer Agent</title>
+  <title>AgenCart · Customer Agent</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <main class="shell">
     <section class="intro">
+      <div class="agent-brand" aria-label="AgenCart — where agents can shop">
+        <span class="agent-brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 8.5h14l-1 11H6l-1-11Z"/><path d="M8.5 9V6.8a3.5 3.5 0 0 1 7 0V9"/><path d="m9 14 2 2 4-4"/></svg></span>
+        <span><strong>AgenCart</strong><small>where agents can shop</small></span>
+      </div>
       <span class="eyebrow">UCP customer agent</span>
       <h1>Shop with a little more intelligence.</h1>
-      <p>Log in once, then let ShopAI discover the merchant’s live catalog and commerce tools for you.</p>
+      <p>Log in once, then let AgenCart discover the merchant’s live catalog and commerce tools for you.</p>
       <div class="flow"><span>login</span><i>→</i><span>discover</span><i>→</i><span>shop</span></div>
     </section>
 
     <section class="card">
       <form id="loginForm">
-        <div class="card-heading"><span class="step">01</span><div><h2>Start as a buyer</h2><p>Use your ShopAI store account.</p></div></div>
+        <div class="card-heading"><span class="step">01</span><div><h2>Start as a buyer</h2><p>Use your AgenCart store account.</p></div></div>
         <label>Email<input name="email" type="email" autocomplete="email" required></label>
         <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
         <button class="button" type="submit">Connect to store ↗</button>
@@ -25,7 +29,7 @@
       </form>
 
       <div id="chatPanel" hidden>
-        <div class="card-heading"><span class="step">02</span><div><h2>Ask ShopAI</h2><p id="connectionStatus">Ready to discover tools.</p></div><button id="logoutButton" class="quiet" type="button">Log out</button></div>
+        <div class="card-heading"><span class="step">02</span><div><h2>Ask AgenCart</h2><p id="connectionStatus">Ready to discover tools.</p></div><button id="logoutButton" class="quiet" type="button">Log out</button></div>
         <div id="messages" class="messages" aria-live="polite"><div class="bubble assistant">Tell me what you want to find, add to your cart, or check out.</div></div>
         <form id="chatForm" class="chat-form"><textarea id="messageInput" name="message" placeholder="What are you looking for?" maxlength="2000" rows="2" required></textarea><button class="button" type="submit">Send</button></form>
         <p id="chatError" class="error" hidden></p>

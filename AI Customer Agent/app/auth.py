@@ -5,13 +5,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-async def login() -> str:
-    return await login_with_credentials(
-        os.environ["BUYER_EMAIL"],
-        os.environ["BUYER_PASSWORD"],
-    )
-
-
 async def login_with_credentials(email: str, password: str) -> str:
     base_url = os.environ["MERCHANT_API_URL"].rstrip("/")
 
