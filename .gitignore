@@ -1,2 +1,96 @@
+
+# ==============================
+# Environment variables & secrets
+# ==============================
 .env
-.venv
+.env.*
+!.env.example
+
+# Private keys and certificates
+*.pem
+*.key
+*.crt
+
+# ==============================
+# Python
+# ==============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+customer-agent/.venv/
+Customer-Agent/.venv/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ==============================
+# Testing & coverage
+# ==============================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# ==============================
+# IDEs & editors
+# ==============================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ==============================
+# Logs & temporary files
+# ==============================
+*.log
+logs/
+tmp/
+temp/
+
+# ==============================
+# Local uploads & user files
+# ==============================
+uploads/
+backend/uploads/
+media/
+
+# ==============================
+# Node.js (if applicable)
+# ==============================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ==============================
+# Local databases & backups
+# ==============================
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.backup
+*.bak
+*.sql.gz
+
+# ==============================
+# Jupyter / ML artifacts
+# ==============================
+.ipynb_checkpoints/
+wandb/
+mlruns/
