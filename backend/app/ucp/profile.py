@@ -9,7 +9,7 @@ UCP_PROFILE = {
                     "spec": "https://ucp.dev/2026-08-25/specification/overview",
                     "transport": "mcp",
                     "schema": "https://ucp.dev/2026-08-25/services/shopping/mcp.openrpc.json",
-                    "endpoint": "http://localhost:8000/ucp/mcp/"
+                    "endpoint": "https://agencart.vercel.app/ucp/mcp/"
                 }
             ]
         },
