@@ -24,8 +24,7 @@ from fastapi.staticfiles import StaticFiles
 
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-UPLOADS_DIR = BASE_DIR / "uploads"
-UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
 FRONTEND_DIR = BASE_DIR / "frontend"
 
 
@@ -43,7 +42,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 app.mount("/ucp/mcp", MCPAuthMiddleware(mcp_app))
 
