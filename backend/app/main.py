@@ -41,7 +41,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-
+@app.get("/frontend-test")
+def frontend_test():
+    return {
+        "base_dir": str(BASE_DIR),
+        "frontend_dir": str(FRONTEND_DIR),
+        "directory_exists": FRONTEND_DIR.exists(),
+        "index_exists": (FRONTEND_DIR / "index.html").exists(),
+    }
 
 app.mount("/ucp/mcp", MCPAuthMiddleware(mcp_app))
 
