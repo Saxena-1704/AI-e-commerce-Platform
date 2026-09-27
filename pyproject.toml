@@ -2,7 +2,23 @@
 name = "agencart"
 version = "0.1.0"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "sqlalchemy",
+    "psycopg[binary]",
+    "alembic",
+    "python-dotenv",
+    "python-jose[cryptography]",
+    "pydantic[email]",
+    "pwdlib[argon2]",
+    "razorpay",
+    "langchain",
+    "langchain-mcp-adapters",
+    "langchain-groq",
+    "httpx",
+    "fastmcp",
+]
 
 [tool.vercel]
 entrypoint = "backend.app.main:app"
