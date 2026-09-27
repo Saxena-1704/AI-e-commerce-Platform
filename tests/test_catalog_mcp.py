@@ -18,16 +18,31 @@ async def main():
 
         print("\n=== SEARCH CATALOG ===")
 
-        result = await client.call_tool(
-            "search_catalog",
-            {
-                "query": "laptop",
-                "limit": 5,
-                "offset": 0,
-            },
-        )
+        for query in ("headphone", "accessory", "laptop", "phone"):
+            result = await client.call_tool(
+                "search_catalog",
+                {
+                    "meta": {},
+                    "catalog": {
+                        "query": query,
+                        "pagination": {
+                            "limit": 10,
+                            "offset": 0,
+                        },
+                    },
+                },
+            )
 
-        print(result.data)
+            products = result.data["products"]
+            assert all(
+                query.lower() in (
+                    f"{product['title']} "
+                    f"{product.get('description', {}).get('plain', '')} "
+                    f"{product.get('category', '')}"
+                ).lower()
+                for product in products
+            )
+            print(f"{query}: {len(products)} product(s)")
 
         print("\n=== LOOKUP CATALOG ===")
 
