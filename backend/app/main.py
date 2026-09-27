@@ -41,18 +41,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-@app.get("/frontend-test")
-def frontend_test():
-    return {
-        "base_dir": str(BASE_DIR),
-        "frontend_dir": str(FRONTEND_DIR),
-        "directory_exists": FRONTEND_DIR.exists(),
-        "index_exists": (FRONTEND_DIR / "index.html").exists(),
-    }
+
 
 app.mount("/ucp/mcp", MCPAuthMiddleware(mcp_app))
-
-app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
 
 # Allow the plain-JS frontend (served on a different port during development)
@@ -88,6 +79,13 @@ app.include_router(merchant_agent_router)
 #    return FileResponse(FRONTEND_DIR / "index.html")
 
 
+PUBLIC_DIR = BASE_DIR / "public"
+
+@app.get("/")
+def root():
+    return FileResponse(PUBLIC_DIR / "index.html")
+
+
 @app.get("/.well-known/ucp")
 def get_ucp_profile():
     return JSONResponse(content=UCP_PROFILE)
@@ -104,4 +102,4 @@ def database_test():
         }
 
 
-app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+#app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
