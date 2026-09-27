@@ -52,6 +52,8 @@ def frontend_test():
 
 app.mount("/ucp/mcp", MCPAuthMiddleware(mcp_app))
 
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+
 
 # Allow the plain-JS frontend (served on a different port during development)
 # to call this API. Restrict this list before production deployment.
@@ -81,9 +83,9 @@ app.include_router(merchant_router)
 app.include_router(merchant_agent_router)
 
 
-@app.get("/")
-def root():
-    return FileResponse(FRONTEND_DIR / "index.html")
+#@app.get("/")
+#def root():
+#    return FileResponse(FRONTEND_DIR / "index.html")
 
 
 @app.get("/.well-known/ucp")
