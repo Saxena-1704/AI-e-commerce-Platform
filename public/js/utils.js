@@ -34,7 +34,10 @@ export function normalizeList(data) {
 export function resolveImageUrl(imagePath) {
   if (!imagePath) return "";
   try {
-    return new URL(imagePath, `${API_BASE_URL}/`).href;
+    // Already an absolute URL (e.g. Supabase storage) — use as-is.
+    if (/^https?:\/\//i.test(imagePath)) return imagePath;
+    // Otherwise resolve relative to the current page's origin.
+    return new URL(imagePath, window.location.origin).href;
   } catch {
     return "";
   }
