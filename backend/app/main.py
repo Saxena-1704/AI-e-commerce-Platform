@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
+from copy import deepcopy
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
@@ -30,6 +31,9 @@ FRONTEND_DIR = BASE_DIR / "frontend"
 
 mcp_app = mcp.http_app(
     path="/",
+    # Vercel may handle initialize and tools/list in different serverless
+    # invocations, so an in-memory MCP session cannot be reused reliably.
+    stateless_http=True,
 )
 
 
@@ -87,8 +91,12 @@ def root():
 
 
 @app.get("/.well-known/ucp")
-def get_ucp_profile():
-    return JSONResponse(content=UCP_PROFILE)
+def get_ucp_profile(request: Request):
+    """Return an MCP endpoint on the same deployment that served discovery."""
+    profile = deepcopy(UCP_PROFILE)
+    endpoint = f"{str(request.base_url).rstrip('/')}/ucp/mcp/"
+    profile["ucp"]["services"]["dev.ucp.shopping"][0]["endpoint"] = endpoint
+    return JSONResponse(content=profile)
 
 
 @app.get("/db-test")
